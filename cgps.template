@@ -1,0 +1,24 @@
+#!/bin/sh
+
+s_value=?<sensors.gps.0.assisted.latitude>;
+
+#date
+gps_date=$(rdb get sensors.gps.0.assisted.date)
+
+#assisted gps variables
+a_latitude=$(rdb get sensors.gps.0.assisted.latitude)
+a_longitude=$(rdb get sensors.gps.0.assisted.longitude)
+a_time=$(rdb get sensors.gps.0.assisted.time)
+
+#standalone gps variables
+s_latitude=$(rdb get sensors.gps.0.standalone.latitude)
+s_longitude=$(rdb get sensors.gps.0.standalone.longitude)
+s_time=$(rdb get sensors.gps.0.standalone.time)
+
+#location of csv file
+output_path="/var/mnt/SDDisk0P1/gps.csv"
+
+#saving data
+echo $gps_date, $a_time, $a_latitude, $a_longitude, $s_time, $s_latitude, $s_longitude, $s_value >> $output_path
+
+
