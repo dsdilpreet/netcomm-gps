@@ -1,24 +1,46 @@
 #!/bin/sh
 
-s_value=?<sensors.gps.0.assisted.latitude>;
-
-#date
-gps_date=$(rdb get sensors.gps.0.assisted.date)
+a_lat_value=?<sensors.gps.0.assisted.latitude>;
 
 #assisted gps variables
+a_date=$(rdb get sensors.gps.0.assisted.date)
+a_time=$(rdb get sensors.gps.0.assisted.time)
 a_latitude=$(rdb get sensors.gps.0.assisted.latitude)
 a_longitude=$(rdb get sensors.gps.0.assisted.longitude)
-a_time=$(rdb get sensors.gps.0.assisted.time)
-
-#standalone gps variables
-s_latitude=$(rdb get sensors.gps.0.standalone.latitude)
-s_longitude=$(rdb get sensors.gps.0.standalone.longitude)
-s_time=$(rdb get sensors.gps.0.standalone.time)
 
 #location of csv file
 output_path="/var/mnt/SDDisk0P1/gps.csv"
 
+#reading the last saved values
+saved_value=`tail -n1 /var/mnt/SDDisk0P1/gps.csv`
+
+#saving the values in correct variables
+IFS=,
+i=0
+saved_lat=0
+saved_lon=0
+for v in $saved_value
+do
+	i=`expr $i + 1`
+	if [ $i == 3 ]
+	then
+		saved_lat=$v
+	fi
+	if [ $i == 4 ]
+	then
+		saved_lon=$v
+	fi
+done
+
 #saving data
-echo $gps_date, $a_time, $a_latitude, $a_longitude, $s_time, $s_latitude, $s_longitude, $s_value >> $output_path
+diff=`awk -v var1="$saved_lat" -v var2="$a_latitude" 'BEGIN {printf "%.5f", var2 - var1}'`
+result=`awk -v var=$diff 'BEGIN {print (var > 0.00001)}'`
+if [ $result == 1 ]
+then
+    echo $a_date,$a_time,$a_latitude,$a_longitude >> $output_path
+fi
 
 
+#temp
+test_path="/var/mnt/SDDisk0P1/test.csv"
+echo $saved_lat,$a_latitude,$diff,$result >> $test_path
