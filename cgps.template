@@ -1,24 +1,99 @@
 #!/bin/sh
 
-s_value=?<sensors.gps.0.assisted.latitude>;
+#getting gps source
+gps_source=`rdb_get sensors.gps.0.source`
 
-#date
-gps_date=$(rdb get sensors.gps.0.assisted.date)
+#gps source flag. value is 1 when gps source is either agps or standalone otherwise 0.
+source_flag=0
 
-#assisted gps variables
-a_latitude=$(rdb get sensors.gps.0.assisted.latitude)
-a_longitude=$(rdb get sensors.gps.0.assisted.longitude)
-a_time=$(rdb get sensors.gps.0.assisted.time)
+#assigning variables gps values
+if [ $gps_source == 'agps' ]
+then
+    source_flag=1
+    new_date=`rdb_get sensors.gps.0.assisted.date`
+    new_time=`rdb_get sensors.gps.0.assisted.time`
+    new_lat=`rdb_get sensors.gps.0.assisted.latitude`
+    new_lon=`rdb_get sensors.gps.0.assisted.longitude`
+elif [ $gps_source == 'standalone' ]
+then
+    source_flag=1
+    new_date=`rdb_get sensors.gps.0.standalone.date`
+    new_time=`rdb_get sensors.gps.0.standalone.time`
+    new_lat=`rdb_get sensors.gps.0.standalone.latitude`
+    new_lon=`rdb_get sensors.gps.0.standalone.longitude`
+else
+    source_flag=0
+fi
 
-#standalone gps variables
-s_latitude=$(rdb get sensors.gps.0.standalone.latitude)
-s_longitude=$(rdb get sensors.gps.0.standalone.longitude)
-s_time=$(rdb get sensors.gps.0.standalone.time)
+#other variables
+no_of_satellites=`rdb_get sensors.gps.0.standalone.number_of_satellites_tracked`
 
-#location of csv file
+#location of output csv file
 output_path="/var/mnt/SDDisk0P1/gps.csv"
 
+#function for saving data
+save_data () {
+    #only save the data when GPS source is either standalone or Assisted
+    if [ $source_flag == 1 ]
+    then
+        echo $new_date,$new_time,$new_lat,$new_lon,$no_of_satellites,$gps_source >> $output_path
+    fi
+}
+
+#function to read already saved data and calculate difference
+read_and_diff () {
+    #reading the last saved values
+    saved_value=`tail -n1 /var/mnt/SDDisk0P1/gps.csv`
+
+    #saving the values in correct variables
+    IFS=,
+    i=0
+    for v in $saved_value
+    do
+        i=`expr $i + 1`
+        if [ $i == 3 ]
+        then
+            saved_lat=$v
+        fi
+        if [ $i == 4 ]
+        then
+            saved_lon=$v
+        fi
+    done
+
+
+    #calculating distance between new and already saved values using Haversine formula
+    distance=`awk -v lati1=$saved_lat -v long1=$saved_lon -v lati2=$new_lat -v long2=$new_lon 'BEGIN {
+        distance(lati1,long1,lati2,long2)
+        exit(0)
+    }
+    function distance(lat1,lon1,lat2,lon2,  a,c,dlat,dlon) {
+        dlat = radians(lat2-lat1)
+        dlon = radians(lon2-lon1)
+        lat1 = radians(lat1)
+        lat2 = radians(lat2)
+        a = (sin(dlat/2))^2 + cos(lat1) * cos(lat2) * (sin(dlon/2))^2
+        c = 2 * atan2(sqrt(a),sqrt(1-a))
+        printf("%.4f",6372.8 * c)
+    }
+    function radians(degree) { # degrees to radians
+        return degree * (3.1415926 / 180.)
+    }'`
+
+    #set result value to 1 if the saved and new values are different than certain distance. In this example more than 5 metres
+    result=`awk -v var=$distance 'BEGIN {print (var > 0.0005)}'`
+}
+
 #saving data
-echo $gps_date, $a_time, $a_latitude, $a_longitude, $s_time, $s_latitude, $s_longitude, $s_value >> $output_path
-
-
+if [ -e $output_path ]
+then
+    #if file exist then append the data to the file if the difference condition meets
+    read_and_diff
+    if [ $result == 1 ]
+    then
+        save_data
+    fi
+else
+    #if file does not exist, create it and save the data for first time
+   save_data
+fi
