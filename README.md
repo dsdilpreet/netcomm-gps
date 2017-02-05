@@ -1,8 +1,8 @@
 ### Download
-[v1.0 source code and release notes](https://github.com/dsdilpreet/netcomm-gps/archive/v1.0.tar.gz)
+[v1.0 source code and PDF instructions](https://github.com/dsdilpreet/netcomm-gps/files/752781/netcomm_gps_v1.0.tar.gz)
 
 ### About and Execute Script
-Download and move the script file (`cgps.template`) to `/etc/cdcs/conf/mgr_templates` directory of the router and give it executable permissions by running `chmod +x cgps.template` command. The script should create a `gps.csv` file in your Micro SD card located at `/var/mnt/SDDisk0P1/` directory of the router with GPS data.
+Download, extract and move the script file (`cgps.template`) to `/etc/cdcs/conf/mgr_templates` directory of the router and give it executable permissions by running `chmod +x cgps.template` command. The script should create a `gps.csv` file in your Micro SD card located at `/var/mnt/SDDisk0P1/` directory of the router with GPS data.
 
 After file is created new data is only saved, if the last saved GPS coordinates are different than new ones by certain distance (in this release - 5 metres).
 
