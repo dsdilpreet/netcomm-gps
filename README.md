@@ -9,7 +9,7 @@ Script saves the GPS latitude and longitude coordinates in the file if the cordi
 ### What does the `gps.csv` file contain?
 Sample `gps.csv` output is attached below:
 
-![Image of sample output](https://raw.githubusercontent.com/dsdilpreet/netcomm-gps/gh-pages/Docs/sample_ouput.png)
+![Image of sample output](https://raw.githubusercontent.com/dsdilpreet/netcomm-gps/master/Docs/sample_ouput.png)
 
 Each column represents following data:
 
