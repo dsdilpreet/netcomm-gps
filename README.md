@@ -1,6 +1,3 @@
-## Description
-Shell Script which saves the GPS data to a CSV file in Micro SD card for NetComm Wireless NTC-140 and NTC-140W routers.
-
 ### Executing Script
 Download and move the [script file](https://raw.githubusercontent.com/dsdilpreet/netcomm-gps/master/cgps.template) (`cgps.template`) to `/etc/cdcs/conf/mgr_templates` directory of the router and give it executable permissions by running `chmod +x cgps.template` command. The script should create a `gps.csv` file in your Micro SD card located at `/var/mnt/SDDisk0P1/` directory of the router with GPS data.
 
