@@ -7,12 +7,12 @@ Download and move the script file (`cgps.template`) to `/etc/cdcs/conf/mgr_templ
 ### Flow of Script
 Script saves the GPS latitude and longitude coordinates in the file if the cordinates differ by certain distance (in this example 5 meters). Flow chart is attached below:
 
-![Image of flow chart](https://github.com/dsdilpreet/netcomm-gps/blob/master/Docs/flow_chart.png)
+![Image of flow chart](https://raw.githubusercontent.com/dsdilpreet/netcomm-gps/master/Docs/flow_chart.png)
 
 ### What does the `gps.csv` file contain?
 Sample `gps.csv` output is attached below:
 
-![Image of sample output](https://github.com/dsdilpreet/netcomm-gps/blob/master/Docs/sample_ouput.png)
+![Image of sample output](https://raw.githubusercontent.com/dsdilpreet/netcomm-gps/gh-pages/Docs/sample_ouput.png)
 
 Each column represents following data:
 
